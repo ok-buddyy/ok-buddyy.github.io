@@ -369,4 +369,111 @@ if (contactForm) {
   // Initial and scroll checks
   revealOnScroll();
   window.addEventListener('scroll', revealOnScroll);
+
+  // --- LEGAL MODAL (Privacy, Terms, Code of Conduct) ---
+  function ensureLegalModal() {
+    let overlay = document.querySelector('.modal-overlay');
+    if (overlay) return overlay;
+
+    overlay = document.createElement('div');
+    overlay.className = 'modal-overlay';
+    overlay.setAttribute('aria-hidden', 'true');
+
+    overlay.innerHTML = `
+      <div class="modal" role="dialog" aria-modal="true" aria-labelledby="legal-modal-title">
+        <div class="modal-header">
+          <h3 id="legal-modal-title" class="modal-title">Legal</h3>
+          <button type="button" class="modal-close" aria-label="Close">&times;</button>
+        </div>
+        <div class="modal-body" id="legal-modal-body"></div>
+      </div>
+    `;
+
+    document.body.appendChild(overlay);
+
+    // Close interactions
+    const closeBtn = overlay.querySelector('.modal-close');
+    closeBtn.addEventListener('click', closeLegalModal);
+    overlay.addEventListener('click', (e) => {
+      if (e.target === overlay) closeLegalModal();
+    });
+
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && overlay.classList.contains('show')) {
+        closeLegalModal();
+      }
+    });
+
+    return overlay;
+  }
+
+  function openLegalModal(title, html) {
+    const overlay = ensureLegalModal();
+    const titleEl = overlay.querySelector('#legal-modal-title');
+    const bodyEl = overlay.querySelector('#legal-modal-body');
+    if (titleEl) titleEl.textContent = title || 'Legal';
+    if (bodyEl) bodyEl.innerHTML = html || '<p>Details will be announced soon.</p>';
+    overlay.classList.add('show');
+    overlay.setAttribute('aria-hidden', 'false');
+    document.body.classList.add('modal-open');
+  }
+
+  function closeLegalModal() {
+    const overlay = document.querySelector('.modal-overlay');
+    if (!overlay) return;
+    overlay.classList.remove('show');
+    overlay.setAttribute('aria-hidden', 'true');
+    document.body.classList.remove('modal-open');
+  }
+
+  // Attach handlers to footer legal links across pages
+  const legalLinks = document.querySelectorAll('.footer-legal a');
+  if (legalLinks.length) {
+    legalLinks.forEach(link => {
+      link.addEventListener('click', (e) => {
+        e.preventDefault();
+        const text = (link.textContent || '').trim();
+        const lower = text.toLowerCase();
+
+        let title = text || 'Legal';
+        let content = '';
+
+        if (lower.includes('privacy')) {
+          title = 'Privacy Policy';
+          content = `
+            <p>Your privacy is important to us. We collect only the information necessary to operate this event and respond to your enquiries.</p>
+            <ul>
+              <li>Information you submit via forms is used solely for event-related communication.</li>
+              <li>We do not sell your personal information.</li>
+              <li>You can request data removal by contacting us at <a href="mailto:tedxyouth@reddamnorthshore.nsw.edu.au">tedxyouth@reddamnorthshore.nsw.edu.au</a>.</li>
+            </ul>
+          `;
+        } else if (lower.includes('terms')) {
+          title = 'Terms of Service';
+          content = `
+            <p>By using this site and attending the event, you agree to follow venue rules and respect other attendees and speakers.</p>
+            <ul>
+              <li>Tickets may be limited and are subject to availability.</li>
+              <li>Schedule and speakers are subject to change.</li>
+              <li>Any misuse of site features may result in access being revoked.</li>
+            </ul>
+          `;
+        } else if (lower.includes('code')) {
+          title = 'Code of Conduct';
+          content = `
+            <p>We are committed to a welcoming, inclusive environment.</p>
+            <ul>
+              <li>Be respectful and considerate to all participants.</li>
+              <li>No harassment, discrimination, or disruptive behavior.</li>
+              <li>Report concerns to the organizers immediately.</li>
+            </ul>
+          `;
+        } else {
+          content = '<p>Details will be announced soon.</p>';
+        }
+
+        openLegalModal(title, content);
+      });
+    });
+  }
 });

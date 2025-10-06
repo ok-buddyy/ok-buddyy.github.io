@@ -1028,6 +1028,27 @@ footer {
   transform: translateX(5px);
 }
 
+/* Footer contact info: keep icon and text on one line */
+.contact-info {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.contact-info li {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  line-height: 1.6;
+  white-space: nowrap;
+}
+
+.contact-info li i {
+  width: 1.25em;
+  min-width: 1.25em;
+  text-align: center;
+}
+
 .social-links-footer {
   display: flex;
   gap: 1rem;
